@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>focus.lab</title>
+
+<style>
+:root{
+  --bluebird: rgb(77,132,207);
+  --white: #ffffff;
+  --task-bg: rgba(77,132,207,0.1);
+  --main-bg: rgba(77,132,207,0.2);
+  --complete-btn: rgb(144,238,144);
+  --delete-btn: rgb(255,127,80);
+}
+
+*{ box-sizing:border-box; }
+
+body{
+  margin:0;
+  background:var(--white);
+  color:var(--bluebird);
+  font-family:-apple-system, BlinkMacSystemFont, sans-serif;
+  padding:10px 30px 30px 20px;
+}
+
+h1{
+  font-size:64px;
+  font-weight:1000;
+  margin:0 0 20px 0;
+  font-family: Impact, Haettenschweiler, 'Arial Black', sans-serif;
+}
+
+.container{ width:100%; max-width:1500px; }
+.grid{ display:grid; grid-template-columns:1fr 1fr 500px; gap:50px; }
+
+.card{
+  border:3px solid var(--bluebird);
+  border-radius:28px;
+  padding:20px 35px 35px 35px;
+  min-height:650px;
+  display:flex;
+  flex-direction:column;
+}
+
+.section-title{
+  font-size:30px;
+  font-weight:900;
+  margin-bottom:20px;
+}
+
+.task, .main-task{
+  display:flex;
+  align-items:center;
+  font-size:20px;
+  font-weight:700;
+  margin-bottom:14px;
+  padding:10px 12px;
+  border-radius:16px;
+  background:var(--task-bg);
+  width:100%;
+  position:relative;
+  transition: background 0.25s ease;
+}
+
+.task:hover, .main-task:hover{
+  background: rgba(77,132,207,0.15);
+}
+
+.main-task{
+  background: var(--main-bg);
+  font-weight:900;
+  font-size:24px;
+}
+
+.counter{ margin-left:10px; font-size:16px; font-weight:900;}
+.progress-btn{ margin-left:10px; padding:6px 10px; font-size:14px; }
+
+.complete-btn{
+  display:none;
+  margin-left:auto;
+  background: var(--complete-btn);
+  color: var(--white);
+  font-weight:900;
+  padding:6px 10px;
+  border-radius:12px;
+  cursor:pointer;
+}
+
+.task:hover .complete-btn{ display:inline-block; }
+
+textarea{ flex:1; resize:none;}
+#charCount{ font-weight:800; }
+
+input, textarea{
+  width:100%;
+  padding:14px;
+  font-size:20px;
+  font-weight:700;
+  border:3px solid var(--bluebird);
+  border-radius:18px;
+  background:transparent;
+  color:var(--bluebird);
+  margin-bottom:18px;
+}
+
+button{
+  padding:12px 20px;
+  font-size:18px;
+  font-weight:900;
+  border:none;
+  border-radius:18px;
+  background:var(--bluebird);
+  color:var(--white);
+  cursor:pointer;
+  margin-bottom:10px;
+}
+
+.main-input-container, .task-input-container{ display:none; flex-direction:column; gap:10px; margin-bottom:10px; }
+.card-footer{ margin-top:auto; display:flex; flex-direction:column; gap:8px; }
+
+.completed{ text-decoration:line-through; opacity:0.6; }
+</style>
+</head>
+<body>
+
+<h1>focus.lab</h1>
+<div class="container">
+<input type="date" id="dateInput">
+
+<div class="grid">
+
+<!-- WORK -->
+<div class="card">
+<div class="section-title">WORK</div>
+<div id="workMainContainer"></div>
+<div id="workTasks"></div>
+
+<div class="card-footer">
+<button id="workAddMainBtn">ADD MAIN</button>
+<div id="workMainInputContainer" class="main-input-container">
+<input type="text" id="workMainInput" placeholder="Main focus">
+<input type="number" id="workMainTarget" placeholder="Target count (optional)">
+<div>
+<button id="workSaveMain">SAVE</button>
+<button id="workCancelMain">CANCEL</button>
+</div>
+</div>
+
+<button id="workAddTaskBtn">ADD TASK</button>
+<div id="workTaskInputContainer" class="task-input-container">
+<input type="text" id="workTaskInput" placeholder="Task name">
+<input type="number" id="workTaskTarget" placeholder="Target count (optional)">
+<div>
+<button id="workSaveTask">SAVE</button>
+<button id="workCancelTask">DELETE</button>
+</div>
+</div>
+</div>
+</div>
+
+<!-- LIFE -->
+<div class="card">
+<div class="section-title">LIFE</div>
+<div id="lifeMainContainer"></div>
+<div id="lifeTasks"></div>
+
+<div class="card-footer">
+<button id="lifeAddMainBtn">ADD MAIN</button>
+<div id="lifeMainInputContainer" class="main-input-container">
+<input type="text" id="lifeMainInput" placeholder="Main focus">
+<input type="number" id="lifeMainTarget" placeholder="Target count (optional)">
+<div>
+<button id="lifeSaveMain">SAVE</button>
+<button id="lifeCancelMain">CANCEL</button>
+</div>
+</div>
+
+<button id="lifeAddTaskBtn">ADD TASK</button>
+<div id="lifeTaskInputContainer" class="task-input-container">
+<input type="text" id="lifeTaskInput" placeholder="Task name">
+<input type="number" id="lifeTaskTarget" placeholder="Target count (optional)">
+<div>
+<button id="lifeSaveTask">SAVE</button>
+<button id="lifeCancelTask">DELETE</button>
+</div>
+</div>
+</div>
+</div>
+
+<!-- REFLECTION -->
+<div class="card">
+<div class="section-title">REFLECTION (min 150 chars)</div>
+<textarea id="reflection"></textarea>
+<div id="charCount"></div>
+</div>
+
+</div>
+</div>
+
+<script>
+const key="focusPlanner";
+const dateInput=document.getElementById("dateInput");
+dateInput.value=new Date().toISOString().split("T")[0];
+
+function getStore(){ return JSON.parse(localStorage.getItem(key)||"{}"); }
+function saveStore(store){ localStorage.setItem(key,JSON.stringify(store)); }
+function initDay(date){
+  const store=getStore();
+  if(!store[date]){ store[date]={ work:{main:null,tasks:[]}, life:{main:null,tasks:[]}, reflection:""}; saveStore(store);}
+}
+
+// RENDER
+function render(){
+  const date=dateInput.value; initDay(date); const store=getStore(); const day=store[date];
+  renderMain("work",day.work.main,"workMainContainer");
+  renderMain("life",day.life.main,"lifeMainContainer");
+  renderTasks("work",day.work.tasks,"workTasks");
+  renderTasks("life",day.life.tasks,"lifeTasks");
+  reflection.value=day.reflection;
+  charCount.innerText=reflection.value.length+" / 150";
+}
+
+function renderMain(type,data,containerId){
+  const container=document.getElementById(containerId);
+  container.innerHTML="";
+  if(!data) return;
+  container.prepend(createTaskElement(type,data,true,0));
+}
+
+function renderTasks(type,tasks,containerId){
+  const container=document.getElementById(containerId);
+  container.innerHTML="";
+  tasks.slice().reverse().forEach((t,i)=>{ container.prepend(createTaskElement(type,t,false,i)); });
+}
+
+// TASK ELEMENT
+function createTaskElement(type,task,isMain,index){
+  const div=document.createElement("div");
+  div.className=isMain?"main-task task":"task";
+  div.style.width="100%";
+
+  const span=document.createElement("span"); span.textContent=task.text; span.style.flex="1";
+  if(task.done) span.classList.add("completed");
+  if(task.done){ const emoji=document.createElement("span"); emoji.textContent=" ✅"; span.appendChild(emoji);}
+  div.appendChild(span);
+
+  if(task.target){
+    const counter=document.createElement("span"); counter.className="counter"; counter.textContent=`${task.count||0}/${task.target}`;
+    div.appendChild(counter);
+    const btn=document.createElement("button"); btn.textContent="+"; btn.className="progress-btn"; 
+    btn.onclick=(e)=>{ e.stopPropagation(); task.count=(task.count||0)+1; if(task.count>=task.target) task.done=true; updateTask(type,task,isMain,index);}
+    div.appendChild(btn);
+  }
+
+  const completeBtn=document.createElement("button"); completeBtn.textContent="COMPLETE"; completeBtn.className="complete-btn";
+  completeBtn.onclick=(e)=>{ e.stopPropagation(); task.done=true; updateTask(type,task,isMain,index);}
+  div.appendChild(completeBtn);
+
+  return div;
+}
+
+// ADD / UPDATE / DELETE
+function addMain(type){
+  const text=document.getElementById(type+"MainInput").value.trim();
+  const target=parseInt(document.getElementById(type+"MainTarget").value)||null;
+  if(!text) return;
+  const store=getStore(); const date=dateInput.value;
+  store[date][type].main={text,done:false,target,count:0}; saveStore(store); render();
+}
+function addTask(type){
+  const text=document.getElementById(type+"TaskInput").value.trim();
+  const target=parseInt(document.getElementById(type+"TaskTarget").value)||null;
+  if(!text) return;
+  const store=getStore(); const date=dateInput.value;
+  store[date][type].tasks.push({text,done:false,target,count:0}); saveStore(store); render();
+}
+function updateTask(type,task,isMain,index){
+  const store=getStore(); const date=dateInput.value;
+  if(isMain) store[date][type].main=task; else store[date][type].tasks[index]=task;
+  saveStore(store); render();
+}
+
+// REFLECTION
+reflection.oninput=()=>{ const store=getStore(); store[dateInput.value].reflection=reflection.value; saveStore(store); charCount.innerText=reflection.value.length+" / 150";};
+dateInput.onchange=()=>{ const store=getStore(); const dates=Object.keys(store).sort(); const i=dates.indexOf(dateInput.value);
+if(i>0 && store[dates[i-1]].reflection.length<150){ alert("Finish previous reflection first."); dateInput.value=dates[i-1];} render();};
+
+// SHOW/HIDE INPUT CONTAINERS
+["work","life"].forEach(type=>{
+  const mainBtn=document.getElementById(type+"AddMainBtn");
+  const mainContainer=document.getElementById(type+"MainInputContainer");
+  const mainSave=document.getElementById(type+"SaveMain");
+  const mainCancel=document.getElementById(type+"CancelMain");
+
+  mainBtn.onclick=()=>{ mainContainer.style.display="flex"; mainBtn.style.display="none"; }
+  mainCancel.onclick=()=>{ mainContainer.style.display="none"; mainBtn.style.display="block"; document.getElementById(type+"MainInput").value=""; document.getElementById(type+"MainTarget").value=""; }
+  mainSave.onclick=()=>{ addMain(type); mainContainer.style.display="none"; mainBtn.style.display="block"; document.getElementById(type+"MainInput").value=""; document.getElementById(type+"MainTarget").value=""; }
+
+  const taskBtn=document.getElementById(type+"AddTaskBtn");
+  const taskContainer=document.getElementById(type+"TaskInputContainer");
+  const taskSave=document.getElementById(type+"SaveTask");
+  const taskCancel=document.getElementById(type+"CancelTask");
+
+  taskBtn.onclick=()=>{ taskContainer.style.display="flex"; taskBtn.style.display="none"; }
+  taskCancel.onclick=()=>{ taskContainer.style.display="none"; taskBtn.style.display="block"; document.getElementById(type+"TaskInput").value=""; document.getElementById(type+"TaskTarget").value=""; }
+  taskSave.onclick=()=>{ addTask(type); taskContainer.style.display="none"; taskBtn.style.display="block"; document.getElementById(type+"TaskInput").value=""; document.getElementById(type+"TaskTarget").value=""; }
+});
+
+initDay(dateInput.value); render();
+</script>
+
+</body>
+</html>

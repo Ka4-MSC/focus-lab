@@ -1,0 +1,116 @@
+:root{
+  --bluebird: rgb(77,132,207);
+  --white: #ffffff;
+  --task-bg: rgba(77,132,207,0.1);
+  --main-bg: rgba(77,132,207,0.2);
+  --complete-btn: rgb(144,238,144);
+  --delete-btn: rgb(255,127,80);
+}
+
+*{ box-sizing:border-box; }
+
+body{
+  margin:0;
+  background:var(--white);
+  color:var(--bluebird);
+  font-family:-apple-system, BlinkMacSystemFont, sans-serif;
+  padding:10px 30px 30px 20px;
+}
+
+h1{
+  font-size:64px;
+  font-weight:1000;
+  margin:0 0 20px 0;
+  font-family: Impact, Haettenschweiler, 'Arial Black', sans-serif;
+}
+
+.container{ width:100%; max-width:1500px; }
+.grid{ display:grid; grid-template-columns:1fr 1fr 500px; gap:50px; }
+
+.card{
+  border:3px solid var(--bluebird);
+  border-radius:28px;
+  padding:20px 35px 35px 35px;
+  min-height:650px;
+  display:flex;
+  flex-direction:column;
+}
+
+.section-title{
+  font-size:30px;
+  font-weight:900;
+  margin-bottom:20px;
+}
+
+.task, .main-task{
+  display:flex;
+  align-items:center;
+  font-size:20px;
+  font-weight:700;
+  margin-bottom:14px;
+  padding:10px 12px;
+  border-radius:16px;
+  background:var(--task-bg);
+  width:100%;
+  position:relative;
+  transition: background 0.25s ease;
+}
+
+.task:hover, .main-task:hover{
+  background: rgba(77,132,207,0.15);
+}
+
+.main-task{
+  background: var(--main-bg);
+  font-weight:900;
+  font-size:24px;
+}
+
+.counter{ margin-left:10px; font-size:16px; font-weight:900;}
+.progress-btn{ margin-left:10px; padding:6px 10px; font-size:14px; }
+
+.complete-btn{
+  display:none;
+  margin-left:auto;
+  background: var(--complete-btn);
+  color: var(--white);
+  font-weight:900;
+  padding:6px 10px;
+  border-radius:12px;
+  cursor:pointer;
+}
+
+.task:hover .complete-btn, .main-task:hover .complete-btn{ display:inline-block; }
+
+textarea{ flex:1; resize:none;}
+#charCount{ font-weight:800; }
+
+input, textarea{
+  width:100%;
+  padding:14px;
+  font-size:20px;
+  font-weight:700;
+  border:3px solid var(--bluebird);
+  border-radius:18px;
+  background:transparent;
+  color:var(--bluebird);
+  margin-bottom:18px;
+}
+
+button{
+  padding:12px 20px;
+  font-size:18px;
+  font-weight:900;
+  border:none;
+  border-radius:18px;
+  background:var(--bluebird);
+  color:var(--white);
+  cursor:pointer;
+  margin-bottom:10px;
+}
+
+.main-input-container, .task-input-container{ display:none; flex-direction:column; gap:10px; margin-bottom:10px; }
+.main-input-container.show, .task-input-container.show{ display:flex; }
+.card-footer{ margin-top:auto; display:flex; flex-direction:column; gap:8px; }
+
+.completed{ text-decoration:line-through; opacity:0.6; }
